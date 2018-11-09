@@ -473,7 +473,7 @@ class XshOrder2D(object):
         self.naxis1_list = [header['NAXIS1'] for header in header_list]
         self.naxis2 = header_list[0]['NAXIS2']
 
-        # print(wcs_list[0].all_pix2world(1,1,1))
+
 
         self.start_wave_list = [wcs.wcs_pix2world(1, 1, 1)[0] for wcs in wcs_list]
 

@@ -15,7 +15,7 @@ Install the ESO pipelines through macports. Install instructions are available a
 
 The workflow used for these X-shooter reductions can be downloaded from this repository. The file ESO/xsh_workflow_320.kar contains a workflow. When esoreflex and installed and the workflow is loaded into Kepler (ESO workflow engine), it should look something like this:
 
-![alt tag](docs/figs/esoreflex.png)
+![alt tag](docs/figs/esoreflex2.png)
 
 Follow the instrutions printed on the workflow. Most importantly set the RAW_DATA_DIR to the folder containing your unzipped data. The workflow provided here has been preconfigured to reduce the observations in STARE-mode. 
 
@@ -27,10 +27,11 @@ For the science reduction, mainly the sky regions should be set for each element
 ![alt tag](docs/figs/sky_sub.png)
 
 
-
 Each complete nodding sequence will produce 4 individual reductions for each arm. The scripts aims at combining these reductions. A specific directory structure makes the combinations much easier. The structure is shown here.
 
-![alt tag](docs/figs/dir_struct.png)
+![alt tag](docs/figs/dir_struct2.png)
+
+This is a bit cumbersome, as we need to work with files that ESO puts in the reflex_tmp_products/xshooter/xsh_scired_slit_stare_1 and in reflex_end_products. It is easiest to keep track of the files if the files from each
 
 When this directory structure is used, the scripts can be used.
 
@@ -40,18 +41,23 @@ There are a few dependences, which using https://www.anaconda.com/download/, can
 
 The included conda environment file can be setup using:
 
+```
 conda-env create -f xsh_env.yml
+```
 
 This will create a anaconda environment named xsh_env. 
 
 Activate the conda environment using:
 
+```
 conda activate xsh_env
+```
 
 There is single dependence, which must be installed. With the xsh_env active, run:
 
+```
 pip install git+https://github.com/karllark/dust_extinction.git
-
+```
 
 ![alt tag](docs/figs/XSHcomb.png)
 
