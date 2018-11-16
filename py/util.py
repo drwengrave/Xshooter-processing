@@ -311,6 +311,7 @@ def bin_image(flux, error, mask, binh, weight=False):
     # Containers
     res = np.zeros((v_size, outsizeh))
     reserr = np.zeros((v_size, outsizeh))
+    resbpmap = np.zeros((v_size, outsizeh))
 
     flux_tmp = flux.copy()
     for ii in np.arange(0, h_size - binh, binh):
@@ -325,9 +326,9 @@ def bin_image(flux, error, mask, binh, weight=False):
         mask_comb = mask[:, ii:ii + binh].astype("bool") | clip_mask.mask
 
         # Construct weighted average and weighted std along binning axis
-        res[:, h_index], reserr[:, h_index], __ = avg(flux_tmp[:, ii:ii + binh], error[:, ii:ii + binh], mask=mask_comb, axis=1, weight=weight)
+        res[:, h_index], reserr[:, h_index], resbpmap[:, h_index] = avg(flux_tmp[:, ii:ii + binh], error[:, ii:ii + binh], mask=mask_comb, axis=1, weight=weight)
 
-    return res, reserr
+    return res, reserr, resbpmap
 
 
 def convert_air_to_vacuum(air_wave) :
@@ -419,12 +420,6 @@ def form_nodding_pairs(flux_cube, error_cube, bpmap_cube, naxis2, pix_offsety):
     alter = 1
     for ii, kk in enumerate(v_range):
         if alter == 1:
-            # pl.imshow(flux_cube_out[:, 1000:1100, ii])
-            # pl.show()
-            # pl.imshow(flux_cube_out[:, 1000:1100, ii + 1])
-            # pl.show()
-            # pl.imshow(flux_cube_out[:, 1000:1100, ii + 1]+flux_cube_out[:, 1000:1100, ii])
-            # pl.show()
             flux_cube_out[:, :, ii] = flux_cube_out[:, :, ii] + flux_cube_out[:, :, ii + 1]
             error_cube_out[:, :, ii] = np.sqrt(error_cube_out[:, :, ii]**2. + error_cube_out[:, :, ii + 1]**2.)
             bpmap_cube_out[:, :, ii] = bpmap_cube_out[:, :, ii] + bpmap_cube_out[:, :, ii + 1]
@@ -433,7 +428,7 @@ def form_nodding_pairs(flux_cube, error_cube, bpmap_cube, naxis2, pix_offsety):
             error_cube_out[:, :, ii] = np.nan
             bpmap_cube_out[:, :, ii] = np.ones_like(bpmap_cube_out[:, :, ii])*666
         alter *= -1
-    # exit()
+
     n_pix = np.ones_like(bpmap_cube_out) + (~(bpmap_cube_out.astype("bool"))).astype("int")
     flux_cube_out = flux_cube_out/n_pix
     error_cube_out = error_cube_out/(n_pix)

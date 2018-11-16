@@ -8,7 +8,7 @@ import glob
 from astropy.io import fits
 import os
 
-object_name = "/Users/jonatanselsing/Work/work_rawDATA/Crab_Pulsar"
+object_name = "/Users/jonatanselsing/Work/work_rawDATA/Bertinoro"
 
 for nn in glob.glob(object_name+"/data_with_raw_calibs/*cosmicced*"):
     os.remove(nn)

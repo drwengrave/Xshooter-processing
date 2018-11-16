@@ -142,13 +142,14 @@ def main():
         pl.axvspan(13500, 14500, color="grey", alpha=0.2)
         pl.axvspan(18000, 19500, color="grey", alpha=0.2)
 
-        pl.ylim(-1e-18, 1.2 * max_v)
-        pl.xlim(2500, 20000)
+        # pl.ylim(-1e-18, 1.2 * max_v)
+        # pl.xlim(2500, 20000)
         pl.xlabel(r"Observed wavelength  [$\mathrm{\AA}$]")
         pl.ylabel(r'Flux density [$\mathrm{erg} \mathrm{s}^{-1} \mathrm{cm}^{-1} \mathrm{\AA}^{-1}$]')
         pl.axhline(0, linestyle="dashed", color="black")
         pl.legend()
         pl.savefig(root_dir + "%s.pdf"%kk)
+        pl.show()
         pl.clf()
 
 
@@ -156,7 +157,7 @@ def main():
         f = interpolate.interp1d(wl_stitch, flux_stitch)
         g = interpolate.interp1d(wl_stitch, error_stitch)
         np.savetxt(root_dir+"%s_stitched.dat"%kk, list(zip(wl, f(wl), g(wl))), fmt='%1.2f %1.4e %1.4e')
-
+        # pl.show()
 
 if __name__ == '__main__':
     main()

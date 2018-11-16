@@ -349,7 +349,7 @@ class XSHcomb:
 
         # Get binned spectrum
         bin_length = int(len(self.haxis) / 300)
-        bin_flux, bin_error = bin_image(self.flux, self.error, self.bpmap, bin_length, weight = True)
+        bin_flux, bin_error, __ = bin_image(self.flux, self.error, self.bpmap, bin_length, weight = True)
 
         # Save binned image for quality control
         self.fitsfile[0].data = bin_flux
@@ -676,29 +676,29 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser()
         args = parser.parse_args()
 
-        object_name = "/Users/jonatanselsing/Work/work_rawDATA/Crab_Pulsar/"
+        object_name = "/Users/jonatanselsing/Work/work_rawDATA/Bertinoro/"
 
         args.filepath = object_name
 
-        arms = ["UVB", "VIS", "NIR"] # UVB, VIS, NIR, ["UVB", "VIS", "NIR"]
+        arms = ["UVB"] # UVB, VIS, NIR, ["UVB", "VIS", "NIR"]
 
         combine = False # True False
 
-        OBs = ["OB9"] # ["OB1", "OB2", "OB3", "OB4", "OB5", "OB6", "OB7", "OB8", "OB9", "OB10", "OB11", "OB12", "OB13", "OB14"]
+        OBs = ["OB1"] # ["OB1", "OB2", "OB3", "OB4", "OB5", "OB6", "OB7", "OB8", "OB9", "OB10", "OB11", "OB12", "OB13", "OB14"]
         for ll in OBs:
             args.OB = ll
             # print(ll)
             for ii in arms:
                 args.arm = ii # UVB, VIS, NIR
-                args.mode = "STARE"
-                # args.mode = "NOD"
+                # args.mode = "STARE"
+                args.mode = "NOD"
                 # if ii == "NIR":
                 #     args.mode = "NOD"
                 # if combine:
                 #     args.mode = "COMBINE"
 
                 args.use_master_response = False # True False
-                args.masks = [0]
+                args.masks = []
                 args.seeing = 1.5
                 args.repeats = 1
 

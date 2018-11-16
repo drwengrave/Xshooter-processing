@@ -104,7 +104,7 @@ class XSHextract(XSHcomb):
 
         # Get binned spectrum
         bin_length = int(len(self.haxis) / bin_elements)
-        bin_flux, bin_error = bin_image(self.flux, self.error, self.bpmap, bin_length, weight = False)
+        bin_flux, bin_error, __ = bin_image(self.flux, self.error, self.bpmap, bin_length, weight = False)
         bin_haxis = 10.*(((np.arange(self.header['NAXIS1']/bin_length)) - self.header['CRPIX1'])*self.header['CD1_1']*bin_length+self.header['CRVAL1'])
 
         # Cutting edges of image. Especially importnant for nodding combinations, due to the negative signals
@@ -125,7 +125,7 @@ class XSHextract(XSHcomb):
         # Inital parameter guess
         fwhm_sigma = 2. * np.sqrt(2.*np.log(2.)) #Conversion between header seeing value and fit seeing value.
         if p0 == None:
-            p0 = [1e1*np.nanmean(bin_flux[bin_flux > 0]), np.median(self.vaxis), abs(self.header['HIERARCH ESO TEL AMBI FWHM START']), 0, 0]
+            p0 = [abs(1e1*np.nanmean(bin_flux[bin_flux > 0])), np.median(self.vaxis), abs(self.header['HIERARCH ESO TEL AMBI FWHM START']), 0, 0]
             if two_comp:
                 p0 = [1e1*np.nanmean(bin_flux[bin_flux > 0]), np.median(self.vaxis), abs(self.header['HIERARCH ESO TEL AMBI FWHM START']), 0, 0, 5e-1*np.nanmean(bin_flux[bin_flux > 0]), np.median(self.vaxis) + 2, 0.5, 0.1]
 
@@ -269,6 +269,7 @@ class XSHextract(XSHcomb):
         amp[amp < 0] = 1e-20
         amp = signal.medfilt(amp, 5)
         mask = ~(eamp == 1e10)
+        print(bin_haxis, amp)
         f = interpolate.interp1d(bin_haxis[mask], amp[mask], bounds_error=False, fill_value="extrapolate")
         fitampval = f(self.haxis)
         fitampval[fitampval <= 0] = 1e-20#np.nanmean(fitampval[fitampval > 0])
@@ -691,11 +692,11 @@ if __name__ == '__main__':
         """
         Central scipt to extract spectra from X-shooter.
         """
-        object_name = "/Users/jonatanselsing/Work/work_rawDATA/Crab_Pulsar/"
+        object_name = "/Users/jonatanselsing/Work/work_rawDATA/Bertinoro/"
 
         arms = ["UVB", "VIS", "NIR"]  # UVB, VIS, NIR, ["UVB", "VIS", "NIR"]
         # OBs = ["OB1", "OB2", "OB3", "OB4", "OB5", "OB6", "OB7", "OB8", "OB9", "OB10", "OB11", "OB12", "OB13", "OB14"]
-        OBs = ["OB9"]
+        OBs = ["OB1", "OB2"]
         for OB in OBs:
             for ii in arms:
                 # Construct filepath
@@ -719,7 +720,7 @@ if __name__ == '__main__':
 
                 args.slitcorr = True  # True, False
                 args.plot_ext = True  # True, False
-                args.adc_corr_guess = True  # True, False
+                args.adc_corr_guess = False  # True, False
                 if ii == "UVB":
                     args.edge_mask = (5, 5)
                 elif ii == "VIS":
@@ -730,8 +731,8 @@ if __name__ == '__main__':
                 args.pol_degree = [3, 2, 2]
                 args.bin_elements = 300
                 args.direction = 1
-                # args.p0 = [1e-18, -4, 1, 0, 0, 1e-18, -2.5, 1]  # [1e-18, -2.5, 1.5, 0, 0], [1e-18, 0, 0.6, 0, 0, 1e-18, -2.5, 0.6], None  -- [amplitude1, cen1, width1, slope, offset, amplitude2, cen2, width2]
-                args.p0 = None
+                args.p0 = [1e-18, -2.5, 1.5, 0, 0]  # [1e-18, -2.5, 1.5, 0, 0], [1e-18, 0, 0.6, 0, 0, 1e-18, -2.5, 0.6], None  -- [amplitude1, cen1, width1, slope, offset, amplitude2, cen2, width2]
+                # args.p0 = None
 
                 args.two_comp = False  # True, False
                 args.seeing = 0.9

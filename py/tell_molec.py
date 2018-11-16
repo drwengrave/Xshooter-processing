@@ -9,7 +9,7 @@ from astropy.io import fits
 
 def main():
 
-    root_dir = "/Users/jonatanselsing/Work/work_rawDATA/Crab_Pulsar/"
+    root_dir = "/Users/jonatanselsing/Work/work_rawDATA/Bertinoro/"
     outpath = root_dir + "telluric/"
 
     # If true, use the telluric standard to derive telluric correction.
@@ -17,7 +17,7 @@ def main():
 
 
     arms = ["VIS", "NIR"]  # "VIS", "NIR"
-    OBs = ["OB9"]
+    OBs = ["OB1", "OB2"]
     for kk in arms:
         for ll in OBs:
             if not tell_star:

@@ -12,11 +12,11 @@ def main():
 
     root_dir = "/Users/jonatanselsing/Work/work_rawDATA/Crab_Pulsar/"
 
-    arms = ["UVB", "VIS", "NIR"]  # ["UVB", "VIS", "NIR"]
+    arms = ["UVB"]  # ["UVB", "VIS", "NIR"]
     # OBs = ["OB1", "OB2", "OB3", "OB4", "OB5", "OB6", "OB7", "OB8", "OB9", "OB10", "OB11", "OB12", "OB13"]
     OBs = ["OB9"]
 
-    ext_name = "skysuboptext.dat"  # None
+    ext_name = "skysubstdext.dat"  # None
 
     tell_file = 1
 
