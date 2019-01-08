@@ -13,7 +13,8 @@ from astropy.io import fits
 from astropy import wcs
 
 
-__all__ = ["correct_for_dust", "bin_image", "avg", "gaussian", "voigt", "two_voigt", "slit_loss", "convert_air_to_vacuum", "convert_vacuum_to_air", "inpaint_nans", "bin_spectrum", "form_nodding_pairs", "find_nearest", "get_slitloss", "Moffat1D", "Two_Moffat1D", "filter_bad_values", "XshOrder2D"]
+
+__all__ = ["correct_for_dust", "bin_image", "avg", "gaussian", "voigt", "two_voigt", "slit_loss", "convert_air_to_vacuum", "convert_vacuum_to_air", "inpaint_nans", "bin_spectrum", "form_nodding_pairs", "find_nearest", "get_slitloss", "Moffat1D", "Two_Moffat1D", "filter_bad_values", "XshOrder2D", "ADC_corr_guess"]
 
 
 def get_slitloss(seeing_fwhm, slit_width):
@@ -300,7 +301,7 @@ def bin_image(flux, error, mask, binh, weight=False):
     binned fits image
     """
 
-    print("Binning image by a factor: "+str(binh))
+    # print("Binning image by a factor: "+str(binh))
     if binh == 1:
         return flux, error
 
@@ -320,10 +321,10 @@ def bin_image(flux, error, mask, binh, weight=False):
         h_index = int((ii + binh)/binh - 1)
 
         # Sigma clip before binning to remove noisy pixels with bad error estimate.
-        clip_mask = sigma_clip(flux[:, ii:ii + binh], axis=1)
+        # clip_mask = sigma_clip(flux[:, ii:ii + binh], axis=1)
 
         # Combine masks
-        mask_comb = mask[:, ii:ii + binh].astype("bool") | clip_mask.mask
+        mask_comb = mask[:, ii:ii + binh].astype("bool") #| clip_mask.mask
 
         # Construct weighted average and weighted std along binning axis
         res[:, h_index], reserr[:, h_index], resbpmap[:, h_index] = avg(flux_tmp[:, ii:ii + binh], error[:, ii:ii + binh], mask=mask_comb, axis=1, weight=weight)
@@ -560,6 +561,88 @@ class XshOrder2D(object):
         self.fill_data()
         self.create_final_hdul()
         self.write_result(fname_out, clobber=clobber)
+
+
+
+
+def ADC_corr_guess(header, waveaxis):
+
+    # Corrections to slit position from broken ADC, taken DOI: 10.1086/131052
+    # Pressure in hPa, Temperature in Celcius
+    p, T = header['HIERARCH ESO TEL AMBI PRES END'], header['HIERARCH ESO TEL AMBI TEMP']
+    # Convert hPa to mmHg
+    p = p * 0.7501
+    # Wavelength in microns
+    wl_m = waveaxis/1e4
+    # Refractive index in dry air (n - 1)1e6
+    eq_1 = 64.328 + (29498.1/(146 - wl_m**-2)) + (255.4/(41 - wl_m**-2))
+    # Corrections for ambient temperature and pressure
+    eq_2 = eq_1*((p*(1. + (1.049 - 0.0157*T)*1e-6*p)) / (720.883*(1. + 0.003661*T)))
+    # Correction from water vapor. Water vapor obtained from the Antione equation, https://en.wikipedia.org/wiki/Antoine_equation
+    eq_3 = eq_2 - ((0.0624 - 0.000680*wl_m**-2) / (1. + 0.003661*T)) * 10**(8.07131 - (1730.63/(233.426 + T)))
+    # Isolate n
+    n = eq_3 / 1e6 + 1
+    # Angle relative to zenith
+    z = np.arccos(1/header['HIERARCH ESO TEL AIRM START'])
+
+    # Zero-deviation wavelength of arms, from http://www.eso.org/sci/facilities/paranal/instruments/xshooter/doc/VLT-MAN-ESO-14650-4942_v87.pdf
+    if header['HIERARCH ESO SEQ ARM'] == "UVB":
+        zdwl = 0.405
+    elif header['HIERARCH ESO SEQ ARM'] == "VIS":
+        zdwl = 0.633
+    elif header['HIERARCH ESO SEQ ARM'] == "NIR":
+        zdwl = 1.31
+    else:
+        raise ValueError("Input image does not contain header keyword 'HIERARCH ESO SEQ ARM'. Cannot determine ADC correction.")
+
+    zdwl_inx = find_nearest(wl_m, zdwl)
+
+    #Direction of movement
+    direction = 1
+
+    # Correction of position on slit, relative to Zero-deviation wavelength
+    dR = direction*(206265*(n - n[zdwl_inx])*np.tan(z))
+
+    return dR
+
+
+
+
+def slitcorr(header, waveaxis):
+    # Theoretical slitloss based on DIMM seeing
+    try:
+        seeing = header["SEEING"]
+    except:
+        seeing = np.nanmin(header["HIERARCH ESO TEL AMBI FWHM START"], header["HIERARCH ESO TEL AMBI FWHM END"])
+
+    # Get slit width
+    if header['HIERARCH ESO SEQ ARM'] == "UVB":
+        slit_width = float(header['HIERARCH ESO INS OPTI3 NAME'].split("x")[0])
+    elif header['HIERARCH ESO SEQ ARM'] == "VIS":
+        slit_width = float(header['HIERARCH ESO INS OPTI4 NAME'].split("x")[0])
+    elif header['HIERARCH ESO SEQ ARM'] == "NIR":
+        slit_width = float(header['HIERARCH ESO INS OPTI5 NAME'].split("x")[0])
+
+    # Correct seeing for airmass
+    airmass = np.nanmean([header["HIERARCH ESO TEL AIRM START"], header["HIERARCH ESO TEL AIRM END"]])
+
+    seeing_airmass_corr = seeing * (airmass)**(3/5)
+
+    # Theoretical wavelength dependence
+    haxis_0 = 5000 # Å, DIMM center
+    S0 = seeing_airmass_corr / haxis_0**(-1/5)
+    seeing_theo = S0 * waveaxis**(-1/5)
+
+    # Calculating slit-losses based on 2D Moffat
+    sl = [0]*len(seeing_theo)
+    for ii, kk in enumerate(seeing_theo):
+        sl[ii] = get_slitloss(kk, slit_width)
+    slitcorr = np.array(sl)
+
+
+    return slitcorr
+
+
 
 
 
