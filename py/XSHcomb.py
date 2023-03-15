@@ -405,12 +405,15 @@ class XSHcomb:
                 # Pick mask slice
                 mask = full_mask[:, ii]
 
-                # Sigma clip before sky-estimate to remove noisy pixels with bad error estimate.
-                m, s = np.nanmean(self.flux[:, ii]), np.nanstd(self.flux[:, ii])
-                clip_mask = (self.flux[:, ii] < m - s) | (self.flux[:, ii] > m + s)
+                try:
+                    # Sigma clip before sky-estimate to remove noisy pixels with bad error estimate.
+                    m, s = np.nanmean(self.flux[:, ii]), np.nanstd(self.flux[:, ii])
+                    clip_mask = (self.flux[:, ii] < m - s) | (self.flux[:, ii] > m + s)
 
-                # Combine masks
-                mask = mask | clip_mask
+                    # Combine masks
+                    mask = mask | clip_mask
+                except ValueError:
+                    pass
 
                 # Subtract polynomial estiamte of sky
                 vals = self.flux[:, ii][~mask]
