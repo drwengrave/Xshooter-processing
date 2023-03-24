@@ -8,13 +8,11 @@ from astropy.io import fits
 import numpy as np
 import glob
 from numpy.polynomial import chebyshev
-from scipy import ndimage
 from scipy.signal import medfilt2d
 from astropy.convolution import Gaussian1DKernel, Gaussian2DKernel, convolve
 
 import sys
 import argparse
-import os
 
 # Plotting
 import matplotlib
@@ -24,7 +22,6 @@ import matplotlib.pyplot as pl
 import seaborn
 
 seaborn.set_style("ticks")
-import copy
 
 from util import *
 
@@ -158,7 +155,7 @@ class XSHcomb:
             except KeyError:
                 try:
                     # Offset mode along slit for older observations
-                    from astropy.coordinates import SkyCoord, SkyOffsetFrame
+                    from astropy.coordinates import SkyCoord
                     import astropy.units as u
 
                     point_ra = self.header[ii]["RA"] * u.deg
@@ -348,7 +345,7 @@ class XSHcomb:
         bp_filt[
             int(np.floor(h_size / 2 - 2)) : int(np.ceil(h_size / 2 + 2)), :, :
         ] = False
-        bpmap_cube[bp_filt == True] = 555
+        bpmap_cube[bp_filt is True] = 555
 
         # Mask outliers
 
@@ -530,7 +527,7 @@ class XSHcomb:
             full_mask = self.bpmap.astype("bool") | full_trace_mask
 
             sky_background = np.zeros_like(self.flux)
-            sky_background_error = np.zeros_like(self.flux)
+            np.zeros_like(self.flux)
             for ii, kk in enumerate(self.haxis):
                 # Pick mask slice
                 mask = full_mask[:, ii]
@@ -953,7 +950,6 @@ def main(argv):
     parser.add_argument(
         "filepath",
         type=str,
-        default="/Users/jonatanselsing/Work/work_rawDATA/XSGRB/GRB120327A/",
         help="Path to burst directory on which to run combination. Directory must contain a centain directory structure, similar to /Users/jonatanselsing/Work/work_rawDATA/XSGRB/GRB121027A/reduced_data/OB1/UVB/XSHOO.2012-10-30T05:03:26.098cosmicced/ToO_GRBtrigger_4x600_SCI_SLIT_FLUX_MERGE2D_UVB.fits.",
     )
     parser.add_argument(

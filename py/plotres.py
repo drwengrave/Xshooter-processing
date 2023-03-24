@@ -12,18 +12,13 @@ sns.set_style("ticks")
 
 # Imports
 import numpy as np
-import pandas as pd
 from astropy.io import fits
 from scipy import interpolate
-from astropy.convolution import Gaussian1DKernel, Gaussian2DKernel, convolve
 from scipy.signal import medfilt
-import astropy.units as u
-from astropy.time import Time
 from util import *
 
 
 import matplotlib as mpl
-from matplotlib.ticker import FormatStrFormatter
 
 params = {
     "axes.labelsize": 12,

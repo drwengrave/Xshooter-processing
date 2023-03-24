@@ -32,7 +32,7 @@ def main():
             for ii in files:
                 fitsfile = fits.open(ii)
                 print(ii)
-                sn = np.median(fitsfile[1].data.field("FLUX")) / np.median(
+                np.median(fitsfile[1].data.field("FLUX")) / np.median(
                     fitsfile[1].data.field("ERR")
                 )
 

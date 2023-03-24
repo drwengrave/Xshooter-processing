@@ -20,7 +20,6 @@ from scipy.signal import medfilt2d
 from scipy.ndimage.filters import median_filter
 import copy
 import numpy as np
-from operator import or_
 from scipy import optimize, interpolate, signal
 from numpy.polynomial import chebyshev
 from astropy.convolution import Gaussian1DKernel, Gaussian2DKernel, convolve
@@ -293,7 +292,7 @@ class XSHorder_object(object):
                 :,
                 :,
             ] = False
-            qual_store_cube[bp_filt == True] = 555
+            qual_store_cube[bp_filt is True] = 555
 
             # Probagate the updated bad pixel maps to the individual orders
             for ii in range(self.nfiles):
@@ -867,10 +866,10 @@ class XSHorder_object(object):
             )
 
             # Inital parameter guess
-            fwhm_sigma = 2.0 * np.sqrt(
+            2.0 * np.sqrt(
                 2.0 * np.log(2.0)
             )  # Conversion between header seeing value and fit seeing value.
-            if self.p0 == None:
+            if self.p0 is None:
                 self.p0 = [
                     abs(1e1 * np.nanmean(flux[flux > 0])),
                     np.median(self.nypixel),
@@ -1022,7 +1021,7 @@ class XSHorder_object(object):
                 waveaxis, cen, yerr=ecen, fmt=".k", capsize=0, elinewidth=0.5, ms=7
             )
             ax1.plot(full_waveaxis, fitcenval)
-            vaxis_range = max(spataxis) - min(spataxis)
+            max(spataxis) - min(spataxis)
             ax1.set_ylim((min(spataxis[width:-width]), max(spataxis[width:-width])))
             ax1.set_ylabel("Profile center / [arcsec]")
             ax1.set_title("Quality test: Center estimate")

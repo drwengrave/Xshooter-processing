@@ -3,12 +3,10 @@
 
 from __future__ import division, print_function
 import numpy as np
-from astropy.stats import sigma_clip
 from scipy import signal
 from scipy import interpolate
-import matplotlib.pyplot as pl
 from scipy.special import wofz, erf
-from astropy.modeling import models, fitting
+from astropy.modeling import models
 from astropy.io import fits
 from astropy import wcs
 
@@ -317,7 +315,7 @@ def bin_spectrum(wl, flux, error, mask, binh, weight=False):
 
     for ii in np.arange(0, size - binh, binh):
         # Find psotions in new array
-        h_slice = slice(ii, ii + binh)
+        slice(ii, ii + binh)
         h_index = int((ii + binh) / binh) - 1
         # Construct weighted average and weighted std along binning axis
         res[h_index], reserr[h_index], resbp[h_index] = avg(
@@ -363,7 +361,7 @@ def bin_image(flux, error, mask, binh, weight=False):
     flux_tmp = flux.copy()
     for ii in np.arange(0, h_size - binh, binh):
         # Find psotions in new array
-        h_slice = slice(ii, ii + binh)
+        slice(ii, ii + binh)
         h_index = int((ii + binh) / binh - 1)
 
         # Sigma clip before binning to remove noisy pixels with bad error estimate.
@@ -418,12 +416,12 @@ def inpaint_nans(im, kernel_size=5):
     while np.sum(nans) > 0:
         im[nans] = 0
         vNeighbors = signal.convolve2d(
-            (nans == False), ipn_kernel, mode="same", boundary="symm"
+            (nans is False), ipn_kernel, mode="same", boundary="symm"
         )
         im2 = signal.convolve2d(im, ipn_kernel, mode="same", boundary="symm")
         im2[vNeighbors > 0] = im2[vNeighbors > 0] / vNeighbors[vNeighbors > 0]
         im2[vNeighbors == 0] = np.nan
-        im2[(nans == False)] = im[(nans == False)]
+        im2[(nans is False)] = im[(nans is False)]
         im = im2
         nans = np.isnan(im)
     return im

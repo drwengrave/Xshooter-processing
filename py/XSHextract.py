@@ -16,7 +16,6 @@ from numpy.polynomial import chebyshev
 from scipy import interpolate
 from scipy import optimize
 from scipy.signal import medfilt
-from scipy.stats import mode
 
 # Plotting
 import matplotlib
@@ -26,11 +25,10 @@ import matplotlib.pyplot as pl
 import seaborn
 
 seaborn.set_style("ticks")
-import copy
 from matplotlib.backends.backend_pdf import PdfPages
 
 from util import *
-from XSHcomb import XSHcomb, avg
+from XSHcomb import XSHcomb
 
 
 class XSHextract(XSHcomb):
@@ -198,10 +196,10 @@ class XSHextract(XSHcomb):
         self.fitsfile[0].header["CD1_1"] = self.fitsfile[0].header["CD1_1"] / bin_length
 
         # Inital parameter guess
-        fwhm_sigma = 2.0 * np.sqrt(
+        2.0 * np.sqrt(
             2.0 * np.log(2.0)
         )  # Conversion between header seeing value and fit seeing value.
-        if p0 == None:
+        if p0 is None:
             p0 = [
                 abs(1e1 * np.nanmean(bin_flux[bin_flux > 0])),
                 np.median(self.vaxis),
@@ -389,7 +387,7 @@ class XSHextract(XSHcomb):
             bin_haxis, cen, yerr=ecen, fmt=".k", capsize=0, elinewidth=0.5, ms=7
         )
         ax1.plot(self.haxis, fitcenval)
-        vaxis_range = max(self.vaxis) - min(self.vaxis)
+        max(self.vaxis) - min(self.vaxis)
         ax1.set_ylim((min(self.vaxis[width:-width]), max(self.vaxis[width:-width])))
         ax1.set_ylabel("Profile center / [arcsec]")
         ax1.set_title("Quality test: Center estimate")
@@ -715,7 +713,7 @@ class XSHextract(XSHcomb):
             "air_wave      vacuum_wave      flux           error           bpmap           E(B-V) = "
             + str(np.around(ebv, 3))
         )
-        fil = self.base_name.split("/")[-1]
+        self.base_name.split("/")[-1]
 
         if hasattr(self, "response"):
             print("Applying the master response function")

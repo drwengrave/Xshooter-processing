@@ -222,7 +222,7 @@ class molecFit:
             self.output_path + "/%s_molecfit_%s.output" % (self.name, self.arm)
         )
         with open(molecpar, "w") as f:
-            runMolec = subprocess.run([molecCall, self.molecparfile], stdout=f)
+            subprocess.run([molecCall, self.molecparfile], stdout=f)
         f.close()
         runMolecRes = subprocess.check_output(["tail", "-1", molecpar]).decode("utf-8")
 
@@ -238,7 +238,7 @@ class molecFit:
             self.output_path + "/%s_calctrans_%s.output" % (self.name, self.arm)
         )
         with open(runtranspar, "w") as f:
-            runMolec = subprocess.run([transCall, self.molecparfile], stdout=f)
+            subprocess.run([transCall, self.molecparfile], stdout=f)
         f.close()
         runTransRes = subprocess.check_output(["tail", "-1", runtranspar]).decode(
             "utf-8"
