@@ -9,7 +9,6 @@ import glob
 
 
 def main():
-
     root_dir = "/Users/jonatanselsing/Work/work_rawDATA/Crab_Pulsar/"
 
     arms = ["UVB"]  # ["UVB", "VIS", "NIR"]
@@ -22,27 +21,68 @@ def main():
 
     for ii, arm in enumerate(arms):
         for kk, OB in enumerate(OBs):
-
-            print(root_dir+arm+OB)
+            print(root_dir + arm + OB)
 
             # if OBs is None:
-            dat = np.genfromtxt(root_dir+arm+OB+ext_name)
+            dat = np.genfromtxt(root_dir + arm + OB + ext_name)
 
             try:
-                wl, f, e, bpmap, dust, resp, slitcorr = dat[:, 1], dat[:, 2], dat[:, 3], dat[:, 4], dat[:, 5], dat[:, 6], dat[:, 7]
+                wl, f, e, bpmap, dust, resp, slitcorr = (
+                    dat[:, 1],
+                    dat[:, 2],
+                    dat[:, 3],
+                    dat[:, 4],
+                    dat[:, 5],
+                    dat[:, 6],
+                    dat[:, 7],
+                )
             except:
-                wl, f, e, bpmap, dust, slitcorr = dat[:, 1], dat[:, 2], dat[:, 3], dat[:, 4], dat[:, 5], dat[:, 6]
+                wl, f, e, bpmap, dust, slitcorr = (
+                    dat[:, 1],
+                    dat[:, 2],
+                    dat[:, 3],
+                    dat[:, 4],
+                    dat[:, 5],
+                    dat[:, 6],
+                )
 
-
-            file = glob.glob(root_dir + "reduced_data/"+OB+"/"+arm+"/*/*_IDP_"+arm+".fits")[0]
-            n_files = len(glob.glob(root_dir + "reduced_data/"+OB+"/"+arm+"/*/*_IDP_"+arm+".fits"))
+            file = glob.glob(
+                root_dir
+                + "reduced_data/"
+                + OB
+                + "/"
+                + arm
+                + "/*/*_IDP_"
+                + arm
+                + ".fits"
+            )[0]
+            n_files = len(
+                glob.glob(
+                    root_dir
+                    + "reduced_data/"
+                    + OB
+                    + "/"
+                    + arm
+                    + "/*/*_IDP_"
+                    + arm
+                    + ".fits"
+                )
+            )
 
             print(file)
 
             fitsfile = fits.open(file)
 
             # Read in telluric correction
-            print(root_dir + "telluric/" + arm + OB + "TELL"+str(tell_file)+"_TAC.fits")
+            print(
+                root_dir
+                + "telluric/"
+                + arm
+                + OB
+                + "TELL"
+                + str(tell_file)
+                + "_TAC.fits"
+            )
             try:
                 t = t_file[1].data.field("mtrans").flatten()
             except:
@@ -50,15 +90,17 @@ def main():
             print(t)
             # Update data columns
             c = fitsfile[1].columns["WAVE"]
-            c.data = (wl/10) #* (1 - fitsfile[0].header['HIERARCH ESO QC VRAD BARYCOR']/3e5)
+            c.data = (
+                wl / 10
+            )  # * (1 - fitsfile[0].header['HIERARCH ESO QC VRAD BARYCOR']/3e5)
             fitsfile[1].data["WAVE"] = c.data
 
             c = fitsfile[1].columns["FLUX"]
-            c.data = f*slitcorr
+            c.data = f * slitcorr
             fitsfile[1].data["FLUX"] = c.data
 
             c = fitsfile[1].columns["ERR"]
-            c.data = e*slitcorr
+            c.data = e * slitcorr
             fitsfile[1].data["ERR"] = c.data
 
             c = fitsfile[1].columns["QUAL"]
@@ -72,10 +114,10 @@ def main():
 
             try:
                 c = fitsfile[1].columns["FLUX_REDUCED"]
-                c.data = f/resp
+                c.data = f / resp
                 fitsfile[1].data["FLUX_REDUCED"] = c.data
                 c = fitsfile[1].columns["ERR_REDUCED"]
-                c.data = e/resp
+                c.data = e / resp
                 fitsfile[1].data["ERR_REDUCED"] = c.data
             except:
                 pass
@@ -85,7 +127,7 @@ def main():
             fitsfile[0].header["EXPTIME"] = fitsfile[0].header["EXPTIME"] * n_files
             fitsfile[0].header["TEXPTIME"] = fitsfile[0].header["TEXPTIME"] * n_files
 
-            fitsfile.writeto(root_dir+"final/"+arm+OB+".fits", overwrite=True)
+            fitsfile.writeto(root_dir + "final/" + arm + OB + ".fits", overwrite=True)
 
             # if arm == "UVB" or arm == "VIS":
             #     fitsfile.writeto(root_dir+"final/"+arm+OB+".fits", overwrite=True)
@@ -93,5 +135,5 @@ def main():
             #     fitsfile.writeto(root_dir+"final/"+arm+OB+".fits", overwrite=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
