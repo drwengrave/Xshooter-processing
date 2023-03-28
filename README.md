@@ -1,63 +1,72 @@
 # X-shooter post processing scripts
-Scripts created for post-processing X-shooter reductions. 
+Scripts created for post-processing [X-shooter](https://www.eso.org/sci/facilities/paranal/instruments/xshooter.html) reductions.
+In particular, the scripts provided here allow to combine data taken in NODDING mode but reduced in STARE mode, as well as extract a 1D spectrum from a 2D spectrum.
 
-If you find any bugs or missing features, please let me know at jselsing@nbi.ku.dk
 
--------
+I have forked this repository from [Jonatan Selsing](https://github.com/jselsing) and tidied things up for ease of use but all credit goes to him.
+
+
+## Installation
+
+To use the scripts, clone and download this repository (or download the .zip). 
+```
+git clone https://github.com/JPalmerio/xsh-postproc.git
+```
+
+There is a up-to-date `conda` environment file in order to install the proper python environment, which can be done with:
+```
+conda env create -f xsh_postproc_env.yaml
+```
+This will create a `conda` environment named `xsh_postproc` which you can activate with:
+
+```
+conda activate xsh_postproc
+```
+
+
 ## Usage
 
+The two main scripts in the package are `XSHcomb.py` and `XSHextract.py.`
+These take care of combinations of individual exposures and 1D-extractions respectively.
+The idea is that the ESO X-shooter pipeline is used to reduce all observations in STARE-mode, and then the scripts provided here, do combinations and extractions where the X-shooter pipeline can be improved. 
 
-The two main scripts in the package are XSHcomp.py and XSHextract.py. These take care of combinations of individual exposures and 1D-extractions respectively. The idea is that the ESO X-shooter pipeline, http://www.eso.org/sci/software/pipelines/, is used to reduce all observations in STARE-mode, and then the scripts provided here, do combinations and extractions where the X-shooter pipeline can be improved. 
+### Prerequisites
 
-## Start using reduction scripts
+Install the ESO pipelines using the installation instructions available at https://www.eso.org/sci/software/pipelines/.
+The file `xsh_workflow_stare.kar` contains a workflow which can be used with the X-Shooter pipeline, which has been preconfigured to reduce the observations in STARE-mode.
 
-Install the ESO pipelines through macports. Install instructions are available at https://www.eso.org/sci/software/pipelines/installation/macports.html.
+> :warning: Don't forget to set the `RAW_DATA_DIR` to the folder containing your **_unzipped_** data and `ROOT_DATA_DIR` to where you want the reduced dataset to be saved.
 
-The workflow used for these X-shooter reductions can be downloaded from this repository. The file ESO/xsh_workflow_320.kar contains a workflow. When esoreflex and installed and the workflow is loaded into Kepler (ESO workflow engine), it should look something like this:
+When esoreflex is installed and the workflow is loaded into Kepler (ESO workflow engine), it should look something like this:
 
-![alt tag](docs/figs/esoreflex2.png)
-
-Follow the instrutions printed on the workflow. Most importantly set the RAW_DATA_DIR to the folder containing your unzipped data. The workflow provided here has been preconfigured to reduce the observations in STARE-mode. 
+![alt tag](docs/figs/esoreflex.png)
 
 
-During processing of the workflow, two quality-control windows are shown. The flux-standard reduction where the response function is computed and the science object reduction. The flux-standard window should be inspected for agreement between the blue and the green lines, signifying that the standard star has been adequately calibrated. The blue line is the nightly, flux-calibrated standard star and the green line tabulated flux for this star. 
+During processing of the workflow, two quality-control windows are shown:
 
-For the science reduction, mainly the sky regions should be set for each element in the nodding sequence. It could look something like this, where a faint trace of the afterglow is visible, centered at -2.5 arcsec. The sky is specified using the sky_position and sky-hheight. For this example, two sky windows have been chosen, one at 2 arcsecond with a half-height of 3 arcseconds, and one at -5 arcsec with a 1 arcsec half-height.
+- **The flux-standard reduction**, where the response function is computed.
+This window should be inspected for agreement between the blue and the green lines, signifying that the standard star has been adequately calibrated.
+The blue line is the nightly, flux-calibrated standard star and the green line tabulated flux for this star. 
+
+- **The science object reduction**, where mainly the sky regions should be set for each element in the nodding sequence.
+It could look something like this, where a faint trace of the afterglow is visible, centered at -2.5 arcsec.
+The sky is specified using the sky_position and sky-hheight. For this example, two sky windows have been chosen, one at 2 arcsecond with a half-height of 3 arcseconds, and one at -5 arcsec with a 1 arcsec half-height.
 
 ![alt tag](docs/figs/sky_sub.png)
 
 
-Each complete nodding sequence will produce 4 individual reductions for each arm. The scripts aims at combining these reductions. A specific directory structure makes the combinations much easier. The structure is shown here.
-
-![alt tag](docs/figs/dir_struct2.png)
-
-This is a bit cumbersome, as we need to work with files that ESO puts in the reflex_tmp_products/xshooter/xsh_scired_slit_stare_1 and in reflex_end_products. It is easiest to keep track of the files if the files from each
-
-When this directory structure is used, the scripts can be used.
-
-To use the script, clone and download this repository (or download the .zip). 
-
-There are a few dependences, which using https://www.anaconda.com/download/, can be easily set up. 
-
-The included conda environment file can be setup using:
-
+Each complete nodding sequence will produce 4 individual reductions (A,B,B,A) for each arm.
+The scripts provided in this repository aim to combine these individual reductions into one final product.
+After running `esoreflex` and before moving any files from the output, run the following script:
 ```
-conda-env create -f xsh_env.yml
+python xshpp_sort_esoreflex_stare_output.py ESOREFLEX_ROOT_DATA_DIR
 ```
+where `ESOREFLEX_ROOT_DATA_DIR` is the `ROOT_DATA_DIR` you provided in the `ESOREFLEX` workflow.
+> :bulb: **Tip:** Try to reduce all products in one go. 
+> The reason for this is that each time you make a new reduction, `ESOREFLEX` creates a new output directory for the end products, named after the time that you started the reduction.
+> But it does not create the same directory for the temporary files which are needed to run the post-processing script!
+> This means associating the temporary files with their correct reduction is not trivial.
 
-This will create a anaconda environment named xsh_env. 
-
-Activate the conda environment using:
-
-```
-conda activate xsh_env
-```
-
-There is single dependence, which must be installed. With the xsh_env active, run:
-
-```
-pip install git+https://github.com/karllark/dust_extinction.git
-```
 
 ![alt tag](docs/figs/XSHcomb.png)
 

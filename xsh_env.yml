@@ -1,4 +1,4 @@
-name: xsh_env
+name: xsh_postproc
 channels:
   - conda-forge
   - defaults
