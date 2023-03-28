@@ -143,8 +143,8 @@ def sort_esoreflex_outputs(ROOT_DATA_DIR):
                 "to\n"
                 f"{d/sd.stem/tmp.stem}"
                 )
-            shutil.move(sd, d/sd.stem)
-            shutil.move(tmp, d/sd.stem/tmp.stem)
+            shutil.copy(sd, d/sd.stem)
+            shutil.copy(tmp, d/sd.stem/tmp.stem)
 
 
 if __name__ == '__main__':
