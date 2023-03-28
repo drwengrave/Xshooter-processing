@@ -416,12 +416,12 @@ def inpaint_nans(im, kernel_size=5):
     while np.sum(nans) > 0:
         im[nans] = 0
         vNeighbors = signal.convolve2d(
-            (nans is False), ipn_kernel, mode="same", boundary="symm"
+            (nans == False), ipn_kernel, mode="same", boundary="symm"
         )
         im2 = signal.convolve2d(im, ipn_kernel, mode="same", boundary="symm")
         im2[vNeighbors > 0] = im2[vNeighbors > 0] / vNeighbors[vNeighbors > 0]
         im2[vNeighbors == 0] = np.nan
-        im2[(nans is False)] = im[(nans is False)]
+        im2[(nans == False)] = im[(nans == False)]
         im = im2
         nans = np.isnan(im)
     return im
