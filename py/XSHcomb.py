@@ -783,8 +783,6 @@ def run_combination(args):
         files = sorted(
             glob.glob(
                 args.filepath
-                + "reduced_data/"
-                + args.OB
                 + "/"
                 + args.arm
                 + "/*/*SCI_SLIT_MERGE2D_*.fits"
@@ -796,8 +794,6 @@ def run_combination(args):
         sky_files = sorted(
             glob.glob(
                 args.filepath
-                + "reduced_data/"
-                + args.OB
                 + "/"
                 + args.arm
                 + "/*/*SKY_SLIT_MERGE2D_*.fits"
@@ -807,8 +803,6 @@ def run_combination(args):
             sorted(
                 glob.glob(
                     args.filepath
-                    + "reduced_data/"
-                    + args.OB
                     + "/"
                     + args.arm
                     + "/*/*SCI_SLIT_FLUX_MERGE2D_*.fits"
@@ -828,16 +822,12 @@ def run_combination(args):
 
             merge_files = glob.glob(
                 args.filepath
-                + "reduced_data/"
-                + args.OB
                 + "/"
                 + args.arm
                 + "/*/*/*FLUX_ORDER2D*"
             )
             target_files = glob.glob(
                 args.filepath
-                + "reduced_data/"
-                + args.OB
                 + "/"
                 + args.arm
                 + "/*/*FLUX_MERGE2D*"
@@ -853,8 +843,6 @@ def run_combination(args):
             files = sorted(
                 glob.glob(
                     args.filepath
-                    + "reduced_data/"
-                    + args.OB
                     + "/"
                     + args.arm
                     + "/*/*MANMERGE_*.fits"
@@ -865,8 +853,6 @@ def run_combination(args):
                 files = sorted(
                     glob.glob(
                         args.filepath
-                        + "reduced_data/"
-                        + args.OB
                         + "/"
                         + args.arm
                         + "/*/*SCI_SLIT_FLUX_MERGE2D_"
@@ -885,8 +871,6 @@ def run_combination(args):
 
             np.savetxt(
                 args.filepath
-                + "reduced_data/"
-                + args.OB
                 + "/"
                 + args.arm
                 + "/response_function.dat",
@@ -897,8 +881,6 @@ def run_combination(args):
             sky2d = sorted(
                 glob.glob(
                     args.filepath
-                    + "reduced_data/"
-                    + args.OB
                     + "/"
                     + args.arm
                     + "/*/*SKY_SLIT_MERGE2D_*.fits"
@@ -915,8 +897,6 @@ def run_combination(args):
         sky_files = sorted(
             glob.glob(
                 args.filepath
-                + "reduced_data/"
-                + args.OB
                 + "/"
                 + args.arm
                 + "/*/*SKY_SLIT_MERGE2D_*.fits"
@@ -927,7 +907,7 @@ def run_combination(args):
 
     img = XSHcomb(
         files,
-        args.filepath + args.arm + args.OB,
+        args.filepath + args.arm,
         sky=sky_files,
         synth_sky=skyfile,
         sky2d=sky2d,
@@ -950,7 +930,7 @@ def main(argv):
     parser.add_argument(
         "filepath",
         type=str,
-        help="Path to burst directory on which to run combination. Directory must contain a centain directory structure, similar to /Users/jonatanselsing/Work/work_rawDATA/XSGRB/GRB121027A/reduced_data/OB1/UVB/XSHOO.2012-10-30T05:03:26.098cosmicced/ToO_GRBtrigger_4x600_SCI_SLIT_FLUX_MERGE2D_UVB.fits.",
+        help="Path to burst directory on which to run combination",
     )
     parser.add_argument(
         "arm",
@@ -963,9 +943,6 @@ def main(argv):
         type=str,
         default="STARE",
         help="MODE in which to run combinations. Can either be STARE, NOD or COMBINE",
-    )
-    parser.add_argument(
-        "OB", type=str, default="OB1", help="OB number. Used to look for files."
     )
     parser.add_argument(
         "-repeats",
