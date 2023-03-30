@@ -10,8 +10,11 @@ from astropy.io import fits
 
 log = logging.getLogger(__name__)
 
-logging.basicConfig(stream=sys.stdout, level=logging.DEBUG,
-                    format='%(asctime)s %(levelname)s [%(name)s] %(message)s')
+logging.basicConfig(
+    stream=sys.stdout,
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s [%(name)s] %(message)s",
+)
 
 
 def main():
@@ -34,20 +37,25 @@ def main():
 def sort_esoreflex_outputs(ROOT_DATA_DIR):
     ROOT_DATA_DIR = Path(ROOT_DATA_DIR)
     DIRS = {
-        'ROOT_DATA_DIR': ROOT_DATA_DIR,
-        'END_PRODUCTS_DIR': ROOT_DATA_DIR/'reflex_end_products',
-        'TMP_PRODUCTS_DIR': ROOT_DATA_DIR/'reflex_tmp_products',
+        "ROOT_DATA_DIR": ROOT_DATA_DIR,
+        "END_PRODUCTS_DIR": ROOT_DATA_DIR / "reflex_end_products",
+        "TMP_PRODUCTS_DIR": ROOT_DATA_DIR / "reflex_tmp_products",
     }
 
     # Make sure directories exist
     for k, d in DIRS.items():
         if not d.exists():
-            raise ValueError(f"Directory {d} does not exist. "
-                             "Did you change the ESOREFLEX default directory structure?")
+            raise ValueError(
+                f"Directory {d} does not exist. "
+                "Did you change the ESOREFLEX default directory structure?"
+            )
 
     # Look for reduction folders, exclude folders that start with '.'
-    # This is to avoid including folders such as '.DS_Store' on macOS or other hidden folders
-    reduc_dirs = [f for f in DIRS['END_PRODUCTS_DIR'].iterdir() if not f.stem.startswith('.')]
+    # This is to avoid including folders such as '.DS_Store' on macOS
+    # or other hidden folders
+    reduc_dirs = [
+        f for f in DIRS["END_PRODUCTS_DIR"].iterdir() if not f.stem.startswith(".")
+    ]
     if len(reduc_dirs) > 1:
         raise ValueError("Found more than one reduction, cannot sort files.")
     elif len(reduc_dirs) == 0:
@@ -56,11 +64,11 @@ def sort_esoreflex_outputs(ROOT_DATA_DIR):
     else:
         cdir = reduc_dirs[0]
 
-    reduc_time = cdir.stem.replace('T', ' ') + ' UTC'
+    reduc_time = cdir.stem.replace("T", " ") + " UTC"
     log.info(f"Sorting files for dataset reduced at {reduc_time}")
 
     # Datasets
-    datasets = [f for f in cdir.iterdir() if f.stem.startswith('XSHOO')]
+    datasets = [f for f in cdir.iterdir() if f.stem.startswith("XSHOO")]
     datasets.sort()
     log.info(f"Found {len(datasets)} datasets")
     if len(datasets) == 0:
@@ -68,13 +76,20 @@ def sort_esoreflex_outputs(ROOT_DATA_DIR):
         exit()
 
     # Temp directories
-    tmp_dirs = [f for f in (DIRS['TMP_PRODUCTS_DIR']/'xshooter/xsh_scired_slit_stare_1').iterdir()]
+    tmp_dirs = [
+        f
+        for f in (
+            DIRS["TMP_PRODUCTS_DIR"] / "xshooter/xsh_scired_slit_stare_1"
+        ).iterdir()
+    ]
     tmp_dirs.sort()
     log.info(f"Found {len(tmp_dirs)} directories for temporary files")
 
     # Make sure same number of temp dirs than datasets
     if len(datasets) != len(tmp_dirs):
-        raise ValueError("Number of datasets and directories for temporary files is not the same, cannot sort files.")
+        raise ValueError(
+            "Number of datasets and directories for temporary files is not the same, cannot sort files."
+        )
 
     # check if no temp files created before the dataset reduction
     # t_reducstr = cdir.stem.replace('T', ' ')
@@ -88,31 +103,28 @@ def sort_esoreflex_outputs(ROOT_DATA_DIR):
 
     # Associate each temp dir to a dataset
     data = {
-        'UVB':{
-            'data':[],
-            'tmp':[]
-        },
-        'VIS':{
-            'data':[],
-            'tmp':[]
-        },
-        'NIR':{
-            'data':[],
-            'tmp':[]
-        }
+        "UVB": {"data": [], "tmp": []},
+        "VIS": {"data": [], "tmp": []},
+        "NIR": {"data": [], "tmp": []},
     }
     for i, dset in enumerate(datasets):
         log.debug(f"Searching dataset {dset.stem}")
-        arm = fits.getheader([f for f in dset.glob('*_SCI_SLIT_FLUX_MERGE2D*')][0])["HIERARCH ESO SEQ ARM"]
-        dset_dtobs = fits.getheader([f for f in dset.glob('*_SCI_SLIT_FLUX_MERGE2D*')][0])['DATE-OBS']
+        arm = fits.getheader([f for f in dset.glob("*_SCI_SLIT_FLUX_MERGE2D*")][0])[
+            "HIERARCH ESO SEQ ARM"
+        ]
+        dset_dtobs = fits.getheader(
+            [f for f in dset.glob("*_SCI_SLIT_FLUX_MERGE2D*")][0]
+        )["DATE-OBS"]
 
         log.debug(f"-> {arm} arm, observed at {dset_dtobs}")
-        data[arm]['data'].append(dset)
+        data[arm]["data"].append(dset)
         for dtmp in tmp_dirs:
-            tmp_dtobs = fits.getheader([f for f in dtmp.iterdir()][0])['DATE-OBS'] 
+            tmp_dtobs = fits.getheader([f for f in dtmp.iterdir()][0])["DATE-OBS"]
             if dset_dtobs == tmp_dtobs:
-                data[arm]['tmp'].append(dtmp)
-                log.debug(f"Found {dtmp.stem} temporary directory data associated with dataset {dset.stem}")
+                data[arm]["tmp"].append(dtmp)
+                log.debug(
+                    f"Found {dtmp.stem} temporary directory data associated with dataset {dset.stem}"
+                )
                 break
 
     log.info(
@@ -120,19 +132,23 @@ def sort_esoreflex_outputs(ROOT_DATA_DIR):
         f"{len(data['UVB']['data'])} UVB\n"
         f"{len(data['VIS']['data'])} VIS\n"
         f"{len(data['NIR']['data'])} NIR\n"
-        )
+    )
 
     # Move the datasets into the correct directory structure in order to use
     # the post-processing scripts
-    for arm in ['UVB', 'VIS', 'NIR']:
-        if len(data['UVB']['data']) == 0:
+    for arm in ["UVB", "VIS", "NIR"]:
+        if len(data[arm]["data"]) == 0:
             log.info(f"No {arm} datasets to copy")
             continue
+
         log.info(f"Moving data for {arm} arm")
-        d = ROOT_DATA_DIR/arm
+
+        # Root directory for each arm
+        d = ROOT_DATA_DIR / arm
         d.mkdir(exist_ok=True)
-        for i, sd in enumerate(data[arm]['data']):
-            tmp = data[arm]['tmp'][i]
+
+        for i, sd in enumerate(data[arm]["data"]):
+            tmp = data[arm]["tmp"][i]
             log.debug(
                 "Moving:\n"
                 f"{sd}\n"
@@ -142,10 +158,10 @@ def sort_esoreflex_outputs(ROOT_DATA_DIR):
                 f"{tmp}\n"
                 "to\n"
                 f"{d/sd.stem/tmp.stem}"
-                )
-            shutil.copy(sd, d/sd.stem)
-            shutil.copy(tmp, d/sd.stem/tmp.stem)
+            )
+            shutil.copytree(sd, d / sd.stem, dirs_exist_ok=True)
+            shutil.copytree(tmp, d / sd.stem / tmp.stem, dirs_exist_ok=True)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

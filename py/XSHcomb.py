@@ -781,31 +781,18 @@ def run_combination(args):
     response_2d = 1
     if args.mode == "STARE" or args.mode == "NOD":
         files = sorted(
-            glob.glob(
-                args.filepath
-                + "/"
-                + args.arm
-                + "/*/*SCI_SLIT_MERGE2D_*.fits"
-            )
+            glob.glob(args.filepath + "/" + args.arm + "/*/*SCI_SLIT_MERGE2D_*.fits")
         )
         if len(files) == 0:
             print("No files found... Exitting..")
             exit()
         sky_files = sorted(
-            glob.glob(
-                args.filepath
-                + "/"
-                + args.arm
-                + "/*/*SKY_SLIT_MERGE2D_*.fits"
-            )
+            glob.glob(args.filepath + "/" + args.arm + "/*/*SKY_SLIT_MERGE2D_*.fits")
         )
         n_flux_files = len(
             sorted(
                 glob.glob(
-                    args.filepath
-                    + "/"
-                    + args.arm
-                    + "/*/*SCI_SLIT_FLUX_MERGE2D_*.fits"
+                    args.filepath + "/" + args.arm + "/*/*SCI_SLIT_FLUX_MERGE2D_*.fits"
                 )
             )
         )
@@ -821,16 +808,10 @@ def run_combination(args):
             response_2d = [fits.open(ii)[0].data for ii in files]
 
             merge_files = glob.glob(
-                args.filepath
-                + "/"
-                + args.arm
-                + "/*/*/*FLUX_ORDER2D*"
+                args.filepath + "/" + args.arm + "/*/*/*FLUX_ORDER2D*"
             )
             target_files = glob.glob(
-                args.filepath
-                + "/"
-                + args.arm
-                + "/*/*FLUX_MERGE2D*"
+                args.filepath + "/" + args.arm + "/*/*FLUX_MERGE2D*"
             )
             target_files = [
                 ii for ii in target_files if "MANMERGE" not in ii and "TELL" not in ii
@@ -841,12 +822,7 @@ def run_combination(args):
                 insorder2d.do_all(fname_out)
 
             files = sorted(
-                glob.glob(
-                    args.filepath
-                    + "/"
-                    + args.arm
-                    + "/*/*MANMERGE_*.fits"
-                )
+                glob.glob(args.filepath + "/" + args.arm + "/*/*MANMERGE_*.fits")
             )
 
             if len(files) == 0:
@@ -870,20 +846,14 @@ def run_combination(args):
             ]
 
             np.savetxt(
-                args.filepath
-                + "/"
-                + args.arm
-                + "/response_function.dat",
+                args.filepath + "/" + args.arm + "/response_function.dat",
                 np.nanmean(np.nanmean(response_2d, axis=1), axis=0),
             )
 
         if args.mode == "NOD":
             sky2d = sorted(
                 glob.glob(
-                    args.filepath
-                    + "/"
-                    + args.arm
-                    + "/*/*SKY_SLIT_MERGE2D_*.fits"
+                    args.filepath + "/" + args.arm + "/*/*SKY_SLIT_MERGE2D_*.fits"
                 )
             )
             sky2d = np.array([fits.open(ii)[0].data for ii in sky2d]) * np.array(
@@ -895,12 +865,7 @@ def run_combination(args):
             print("No files found... Exitting..")
             exit()
         sky_files = sorted(
-            glob.glob(
-                args.filepath
-                + "/"
-                + args.arm
-                + "/*/*SKY_SLIT_MERGE2D_*.fits"
-            )
+            glob.glob(args.filepath + "/" + args.arm + "/*/*SKY_SLIT_MERGE2D_*.fits")
         )
 
     skyfile = sorted(glob.glob("statics/" + args.arm + "skytable.fits"))
