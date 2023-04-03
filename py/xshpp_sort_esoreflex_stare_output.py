@@ -129,7 +129,7 @@ def sort_reduction(cdir, DIRS):
         for i, sd in enumerate(data[arm]["data"]):
             tmp = data[arm]["tmp"][i]
             log.debug(
-                "Moving:\n"
+                "Copying:\n"
                 f"{sd}\n"
                 "to\n"
                 f"{d/sd.stem}\n"

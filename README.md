@@ -44,7 +44,17 @@ esoreflex
 
 You can then load a workflow by opening a new file with the `CMD+O` shortcut or your platform-specific equivalent.
 
-> :warning: Don't forget to set the `RAW_DATA_DIR` to the folder containing your **_unzipped_** data and `ROOT_DATA_DIR` to where you want the reduced dataset to be saved.
+> :warning: **Important !** You must set the `ROOT_DATA_DIR` to where you want the reduced dataset to be saved (it will be saved under `ROOT_DATA_DIR/reflex_end_products`) and don't forget to set the `RAW_DATA_DIR` to the folder containing your **_unzipped_** data.
+> The recommended directory structure would look something like this:
+> ```
+> AT2017gfo
+> └── epoch1
+>     ├── STARE_reduction             # <-- ROOT_DATA_DIR
+>     └── raw_data                    # <-- RAW_DATA_DIR
+>         ├── M.XSHOOTER[...].fits    # All these must be unzipped !  
+>         ├── ...                     #         ...
+>         └── XSHOO[...].fits         #         ...
+> ```
 
 
 When `ESOREFLEX` is launched and the workflow loaded, it should look something like this:
@@ -71,11 +81,38 @@ Here is an example of such a window:
 ### Sorting the ESOREFLEX outputs
 By reducing data acquired in NODDING with a STARE mode reduction, each complete nodding sequence will produce 4 individual reductions (A,B,B,A) for each arm.
 The scripts provided in this repository aim to combine these individual reductions into one final product.
+
+> :warning: **Important !**
+> The recommended directory structure would now look something like this:
+> ```
+> AT2017gfo
+> └── epoch1
+>     ├── STARE_reduction                         # <-- ROOT_DATA_DIR
+>     │   ├── reflex_book_keeping
+>     │   │   └── xshooter
+>     │   │       └── ...
+>     │   ├── reflex_end_products                 # Everytime you re-run ESOREFLEX it creates a new directory inside here 
+>     │   │   └── ...                          
+>     │   ├── reflex_logs
+>     │   │   └── xshooter
+>     │   │       └── ...
+>     │   └── reflex_tmp_products
+>     │       └── xshooter
+>     │           ├── ...
+>     │           └── xsh_scired_slit_stare_1     # This folder is important !
+>     │               └── ...
+>     └── raw_data                                # <-- RAW_DATA_DIR
+>         ├── M.XSHOOTER[...].fits                # Containing all the unzipped raw data
+>         ├── ...
+>         └── XSHOO[...].fits
+> ```
+
 After running `ESOREFLEX`, reducing the data and before moving any files from the output, run the following script from the `py` folder:
 ```
 python xshpp_sort_esoreflex_stare_output.py {ESOREFLEX_ROOT_DATA_DIR}
 ```
 where `{ESOREFLEX_ROOT_DATA_DIR}` is the `ROOT_DATA_DIR` you provided in the `ESOREFLEX` workflow (omit the surrounding `{}` brackets).
+In our example this would be the path up to `STARE_reduction`.
 
 
 > :bulb: **Tip:** Try to reduce all products in one go. 
