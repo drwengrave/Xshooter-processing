@@ -34,36 +34,7 @@ def main():
     sort_esoreflex_outputs(args.filepath)
 
 
-def sort_esoreflex_outputs(ROOT_DATA_DIR):
-    ROOT_DATA_DIR = Path(ROOT_DATA_DIR)
-    DIRS = {
-        "ROOT_DATA_DIR": ROOT_DATA_DIR,
-        "END_PRODUCTS_DIR": ROOT_DATA_DIR / "reflex_end_products",
-        "TMP_PRODUCTS_DIR": ROOT_DATA_DIR / "reflex_tmp_products",
-    }
-
-    # Make sure directories exist
-    for k, d in DIRS.items():
-        if not d.exists():
-            raise ValueError(
-                f"Directory {d} does not exist. "
-                "Did you change the ESOREFLEX default directory structure?"
-            )
-
-    # Look for reduction folders, exclude folders that start with '.'
-    # This is to avoid including folders such as '.DS_Store' on macOS
-    # or other hidden folders
-    reduc_dirs = [
-        f for f in DIRS["END_PRODUCTS_DIR"].iterdir() if not f.stem.startswith(".")
-    ]
-    if len(reduc_dirs) > 1:
-        raise ValueError("Found more than one reduction, cannot sort files.")
-    elif len(reduc_dirs) == 0:
-        log.info("No datasets found, nothing to do.")
-        exit()
-    else:
-        cdir = reduc_dirs[0]
-
+def sort_reduction(cdir):
     reduc_time = cdir.stem.replace("T", " ") + " UTC"
     log.info(f"Sorting files for dataset reduced at {reduc_time}")
 
@@ -83,13 +54,13 @@ def sort_esoreflex_outputs(ROOT_DATA_DIR):
         ).iterdir()
     ]
     tmp_dirs.sort()
-    log.info(f"Found {len(tmp_dirs)} directories for temporary files")
+    # log.info(f"Found {len(tmp_dirs)} directories for temporary files")
 
     # Make sure same number of temp dirs than datasets
-    if len(datasets) != len(tmp_dirs):
-        raise ValueError(
-            "Number of datasets and directories for temporary files is not the same, cannot sort files."
-        )
+    # if len(datasets) != len(tmp_dirs):
+    #     raise ValueError(
+    #         "Number of datasets and directories for temporary files is not the same, cannot sort files."
+    #     )
 
     # check if no temp files created before the dataset reduction
     # t_reducstr = cdir.stem.replace('T', ' ')
@@ -118,14 +89,21 @@ def sort_esoreflex_outputs(ROOT_DATA_DIR):
 
         log.debug(f"-> {arm} arm, observed at {dset_dtobs}")
         data[arm]["data"].append(dset)
+        found_tmp = False
         for dtmp in tmp_dirs:
             tmp_dtobs = fits.getheader([f for f in dtmp.iterdir()][0])["DATE-OBS"]
             if dset_dtobs == tmp_dtobs:
+                found_tmp = True
                 data[arm]["tmp"].append(dtmp)
                 log.debug(
                     f"Found {dtmp.stem} temporary directory data associated with dataset {dset.stem}"
                 )
                 break
+        if not found_tmp:
+            raise ValueError(
+                "Did not find any temporary directory data matching the DATE-OBS"
+                f"of dataset {dset.stem}"
+                )
 
     log.info(
         "Found the following individual datasets:\n"
@@ -161,6 +139,44 @@ def sort_esoreflex_outputs(ROOT_DATA_DIR):
             )
             shutil.copytree(sd, d / sd.stem, dirs_exist_ok=True)
             shutil.copytree(tmp, d / sd.stem / tmp.stem, dirs_exist_ok=True)
+
+
+def sort_esoreflex_outputs(ROOT_DATA_DIR):
+    ROOT_DATA_DIR = Path(ROOT_DATA_DIR)
+    DIRS = {
+        "ROOT_DATA_DIR": ROOT_DATA_DIR,
+        "END_PRODUCTS_DIR": ROOT_DATA_DIR / "reflex_end_products",
+        "TMP_PRODUCTS_DIR": ROOT_DATA_DIR / "reflex_tmp_products",
+    }
+
+    # Make sure directories exist
+    for k, d in DIRS.items():
+        if not d.exists():
+            raise ValueError(
+                f"Directory {d} does not exist. "
+                "Did you change the ESOREFLEX default directory structure?"
+            )
+
+    # Look for reduction folders, exclude folders that start with '.'
+    # This is to avoid including folders such as '.DS_Store' on macOS
+    # or other hidden folders
+    reduc_dirs = [
+        f for f in DIRS["END_PRODUCTS_DIR"].iterdir() if not f.stem.startswith(".")
+    ]
+    if len(reduc_dirs) > 1:
+        log.warning(
+            "Found more than one reduction, will try to iterate through them"
+            " but may fail. If there are old reductions in your"
+            " reflex_end_products directory, try to clean them up by either"
+            " deleting them or moving then to another directory.")
+        for cdir in reduc_dirs:
+            sort_reduction(cdir)
+    elif len(reduc_dirs) == 0:
+        log.info("No datasets found, nothing to do.")
+        exit()
+    else:
+        cdir = reduc_dirs[0]
+        sort_reduction(cdir)
 
 
 if __name__ == "__main__":

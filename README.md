@@ -71,11 +71,11 @@ Here is an example of such a window:
 ### Sorting the ESOREFLEX outputs
 By reducing data acquired in NODDING with a STARE mode reduction, each complete nodding sequence will produce 4 individual reductions (A,B,B,A) for each arm.
 The scripts provided in this repository aim to combine these individual reductions into one final product.
-After running `esoreflex`, reducing the data and before moving any files from the output, run the following script:
+After running `ESOREFLEX`, reducing the data and before moving any files from the output, run the following script from the `py` folder:
 ```
 python xshpp_sort_esoreflex_stare_output.py {ESOREFLEX_ROOT_DATA_DIR}
 ```
-where `{ESOREFLEX_ROOT_DATA_DIR}` is the `ROOT_DATA_DIR` you provided in the `ESOREFLEX` workflow.
+where `{ESOREFLEX_ROOT_DATA_DIR}` is the `ROOT_DATA_DIR` you provided in the `ESOREFLEX` workflow (omit the surrounding `{}` brackets).
 
 
 > :bulb: **Tip:** Try to reduce all products in one go. 
