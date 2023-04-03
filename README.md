@@ -87,7 +87,7 @@ This will ensure that all files are sorted in the right directory structure that
 
 
 ### Combining 2D data
-To combine the individual 2D nodding frames reduced in STARE mode, run:
+To combine the individual 2D nodding frames reduced in STARE mode, run (from the `py` folder):
 
 ```
 python XSHcomb.py {ESOREFLEX_ROOT_DATA_DIR} {ARM} STARE
@@ -101,7 +101,7 @@ python XSHcomb.py -h
 ```
 
 ### Extracting a 1D spectrum from the combined data
-To extract a 1D spectrum from the 2D combined spectrum, run:
+To extract a 1D spectrum from the 2D combined spectrum, run (from the `py` folder):
 
 ```
 python XSHextract.py {ESOREFLEX_ROOT_DATA_DIR}/{ARM}skysub.fits 

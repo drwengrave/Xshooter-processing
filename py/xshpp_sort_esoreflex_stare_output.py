@@ -91,7 +91,7 @@ def sort_reduction(cdir, DIRS):
         data[arm]["data"].append(dset)
         found_tmp = False
         for dtmp in tmp_dirs:
-            tmp_dtobs = fits.getheader([f for f in dtmp.iterdir()][0])["DATE-OBS"]
+            tmp_dtobs = fits.getheader([f for f in dtmp.iterdir() if not f.stem.startswith(".")][0])["DATE-OBS"]
             if dset_dtobs == tmp_dtobs:
                 found_tmp = True
                 data[arm]["tmp"].append(dtmp)
