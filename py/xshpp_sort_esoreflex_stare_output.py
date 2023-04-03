@@ -52,6 +52,7 @@ def sort_reduction(cdir, DIRS):
         for f in (
             DIRS["TMP_PRODUCTS_DIR"] / "xshooter/xsh_scired_slit_stare_1"
         ).iterdir()
+        if not f.stem.startswith(".")
     ]
     tmp_dirs.sort()
     # log.info(f"Found {len(tmp_dirs)} directories for temporary files")
