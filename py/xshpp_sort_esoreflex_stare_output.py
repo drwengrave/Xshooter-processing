@@ -34,7 +34,7 @@ def main():
     sort_esoreflex_outputs(args.filepath)
 
 
-def sort_reduction(cdir):
+def sort_reduction(cdir, DIRS):
     reduc_time = cdir.stem.replace("T", " ") + " UTC"
     log.info(f"Sorting files for dataset reduced at {reduc_time}")
 
@@ -103,7 +103,7 @@ def sort_reduction(cdir):
             raise ValueError(
                 "Did not find any temporary directory data matching the DATE-OBS"
                 f"of dataset {dset.stem}"
-                )
+            )
 
     log.info(
         "Found the following individual datasets:\n"
@@ -122,7 +122,7 @@ def sort_reduction(cdir):
         log.info(f"Moving data for {arm} arm")
 
         # Root directory for each arm
-        d = ROOT_DATA_DIR / arm
+        d = DIRS["ROOT_DATA_DIR"] / arm
         d.mkdir(exist_ok=True)
 
         for i, sd in enumerate(data[arm]["data"]):
@@ -168,15 +168,16 @@ def sort_esoreflex_outputs(ROOT_DATA_DIR):
             "Found more than one reduction, will try to iterate through them"
             " but may fail. If there are old reductions in your"
             " reflex_end_products directory, try to clean them up by either"
-            " deleting them or moving then to another directory.")
+            " deleting them or moving then to another directory."
+        )
         for cdir in reduc_dirs:
-            sort_reduction(cdir)
+            sort_reduction(cdir, DIRS)
     elif len(reduc_dirs) == 0:
         log.info("No datasets found, nothing to do.")
         exit()
     else:
         cdir = reduc_dirs[0]
-        sort_reduction(cdir)
+        sort_reduction(cdir, DIRS)
 
 
 if __name__ == "__main__":
