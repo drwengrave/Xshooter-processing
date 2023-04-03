@@ -140,6 +140,7 @@ def sort_reduction(cdir, DIRS):
             )
             shutil.copytree(sd, d / sd.stem, dirs_exist_ok=True)
             shutil.copytree(tmp, d / sd.stem / tmp.stem, dirs_exist_ok=True)
+    log.info(f"Finished sorting files succesfully for reduction {cdir}")
 
 
 def sort_esoreflex_outputs(ROOT_DATA_DIR):
