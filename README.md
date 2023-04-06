@@ -111,7 +111,7 @@ After running `ESOREFLEX`, reducing the data and before moving any files from th
 ```
 python xshpp_sort_esoreflex_stare_output.py {ESOREFLEX_ROOT_DATA_DIR}
 ```
-where `{ESOREFLEX_ROOT_DATA_DIR}` is the `ROOT_DATA_DIR` you provided in the `ESOREFLEX` workflow (omit the surrounding `{}` brackets).
+where `{ESOREFLEX_ROOT_DATA_DIR}` is the `ROOT_DATA_DIR` you provided in the `ESOREFLEX` workflow (omit the surrounding `{}` brackets and don't forget the `/` at the end).
 In our example this would be the path up to `STARE_reduction`.
 
 
