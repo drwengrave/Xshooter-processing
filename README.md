@@ -1,3 +1,5 @@
+N.B. this is a copy of the original repository elaborated and released by Jesse Palmerio and Andrea Saccardi in https://github.com/JPalmerio/xsh-postproc
+
 # X-shooter post processing scripts
 Scripts created for post-processing [X-shooter](https://www.eso.org/sci/facilities/paranal/instruments/xshooter.html) reductions.
 In particular, the scripts provided here allow to combine data taken in NODDING mode but reduced in STARE mode, as well as extract a 1D spectrum from a 2D spectrum.
